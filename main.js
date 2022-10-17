@@ -1,5 +1,5 @@
 const SHA256 = require('crypto-js/sha256');
-export default function weightedRandom(items, weights) {
+function weightedRandom(items, weights) {
     if (items.length !== weights.length) {
       throw new Error('Items and weights must be of the same size');
     }
@@ -32,25 +32,31 @@ class property
 }
 class transaction
 {
-    transaction(toName, fromName, property)
+    transaction(toName, fromName, propertyID)
     {
         this.toName = toName;
         this.fromName = fromName;
-        this.property = property;
+        this.propertyID = propertyID;
     }
 }
 class Block
 {
-    constructor(timestamp, transactions, previous_hash = ' ')
+    constructor(timestamp, transactions, validtorNode, previous_hash = ' ')
     {
         this.timestamp = timestamp;
         this.transactions = transactions;
         this.previous_hash = previous_hash;
         this.hash = ' ';
+        this.validatedBy = validtorNode;
+    }
+    validateBlock()
+    {
+        setTimeout(function() {
+    }, 30000);
     }
     calculateHash()
     {
-        returnSHA256(this.previous_hash + this.timestamp + JSON.stringify(this.transactions)).toString();
+        return SHA256(this.previous_hash + this.timestamp + JSON.stringify(this.transactions)).toString();
     }
 }
 class blockChain
@@ -62,7 +68,7 @@ class blockChain
     }
     createGenesisBlock()
     {
-        return new Block('10/10/2022', "genesis block", 0);
+        return new Block('10/10/2022', "genesis block", 0, 0);
     }
     getLatestBlock()
     {
@@ -71,13 +77,24 @@ class blockChain
     }
     chooseNode(users)
     {
-        return users(weightedRandom(users.address, users.returnStake())).address;
+        return weightedRandom(users.address, users.returnStake()).item;
     }
     completePendingTransactions()
     {
-        console.log("chosen node is : ")
-        console.log(this.chooseNode(inp));
-        let block = new Block(Date.now(), this.pendingTransactions);
+        //console.log("chosen node is : ")
+        //console.log(this.chooseNode(inp));
+        validatorBlock = this.chooseNode(inp);
+        let block = new Block(Date.now(), this.pendingTransactions, validatorBlock);
+        block.validateBlock();
+        this.chain.push(block);
+    }
+    addBlock(newBlock)
+    {
+        newBlock.previous_hash = this.getLatestBlock.hash;
+        newBlock.mineBlock();
+        newBlock.validatedBy = this.chooseNode(inp)
+        console.log("validated by : ");
+        console.log(newBlock.validatedBy());
     }
     isChainValid()
     {
