@@ -1,3 +1,4 @@
+
 const SHA256 = require('crypto-js/sha256');
 
 function weightedRandom(items, weights) {
@@ -47,7 +48,7 @@ class Block
         this.timestamp = timestamp;
         this.transactions = transactions;
         this.previous_hash = previous_hash;
-        this.hash = ' ';
+        this.hash = this.calculateHash();
         this.validatedBy = validtorNode;
     }
     calculateHash()
@@ -56,12 +57,12 @@ class Block
     }
     merkleRootHash()
     {
-        transactions = this.transactions.timestamp;
-        n = transactions.length; 
+        
+        let n = this.transactions.length; 
         let v = [];
         for(let i=0;i<n;i++)
         {
-            v[i]=transactions[i];
+            v[i]=this.transactions[i].propertyID;
         }
         while(n!==1)
         {
@@ -78,7 +79,7 @@ class Block
             }
             n=c;
         }
-        return SHA256(v[0]);
+        return (SHA256(v[0]).toString());
     }
 }
 class blockChain
@@ -90,7 +91,7 @@ class blockChain
     }
     createGenesisBlock()
     {
-        return new Block('10/10/2022', "genesis block", 0, 0);
+        return new Block('10/10/2022', [], 0, 0);
     }
     getLatestBlock()
     {
@@ -103,8 +104,7 @@ class blockChain
     }
     completePendingTransactions()
     {
-        //console.log("chosen node is : ")
-        //console.log(this.chooseNode(inp));
+        
         let names = [];
         let stakes = [];
         for(let i = 0;i < inp.length;i++)
@@ -118,7 +118,7 @@ class blockChain
             let block = new Block(Date.now(), this.pendingTransactions, validatorNode);
             console.log("validated by : ");
             console.log(block.validatedBy);
-            block.previous_hash = this.chain[this.chain.length -1].calculateHash();
+            block.previous_hash = this.chain[this.chain.length -1].hash;
             this.chain.push(block);
         }
         else
@@ -127,8 +127,7 @@ class blockChain
     }
     createTransaction(transaction)
     {
-        // console.log(transaction.from.properties)
-        // console.log(transaction.propertyID)
+        
         let flag = 0;
         let i = 0;
         for(i = 0; i < transaction.from.properties.length; i++)
@@ -137,18 +136,11 @@ class blockChain
         if(flag)
         {
             this.pendingTransactions.push(transaction);
-            let propertiesto = [];
-            transaction.to.properties.push(transaction.propertyID);
-            // for(let i = 0; i < transaction.from.properties.length; i++)
-            // {
-            //     if(transaction.from.properties.ID !== transaction.propertyID)
-            //     propertiesto.push(transaction.propertyID);
-            // }
-            // transaction.from.properties = propertiesto;
+            transaction.to.properties.push({ID:transaction.propertyID});
             transaction.from.properties = transaction.from.properties.splice(i,1)
         }
         else 
-            console.log("error");
+            console.log("Transaction " + transaction.propertyID + " not possible");
     }
     isChainValid()
     {
@@ -170,12 +162,8 @@ class blockChain
             const currBlock = this.chain[i];
             for(let j = 0; j < currBlock.transactions.length; j++)
             {
-                // remove debugging stuff later
-               // console.log(currBlock.transactions[j].from)
                 if (currBlock.transactions[j].from)
                 console.log("transfered : " + currBlock.transactions[j].propertyID + " from : " + currBlock.transactions[j].from.name + " to : " + currBlock.transactions[j].to.name)
-                // else
-                // console.log("id "+i+j+":"+" is undefined")
             }
         }
     }
@@ -220,15 +208,21 @@ inp[4] = new User("Bishra", properties,b);
 properties = [];
 properties.push(new property("4551"));
 inp[5] = new User("Dhey", properties,b);
-//b.addBlock(new Block(1, "12/10/2022", {amount : 4}));
-//b.addBlock(new Block(2, "13/10/2022", {amount : 5}));
-b.createTransaction(new transaction(inp[0], inp[1], "4542", new Date().getTime));
-b.createTransaction(new transaction(inp[0], inp[1], "4542", new Date().getTime));
-b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
-b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
-b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
-b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
+
+b.createTransaction(new transaction(inp[1], inp[0], "4540", new Date().getTime));
+b.createTransaction(new transaction(inp[4], inp[3], "4547", new Date().getTime));
+b.createTransaction(new transaction(inp[1], inp[4], "4547", new Date().getTime));
+b.createTransaction(new transaction(inp[3], inp[0], "4541", new Date().getTime));
+console.log("Transactions starting")
+b.completePendingTransactions();
+console.log(b.chain[b.chain.length - 1].merkleRootHash())
+
+b.createTransaction(new transaction(inp[2], inp[0], "4540", new Date().getTime));
+b.createTransaction(new transaction(inp[0], inp[1], "4547", new Date().getTime));
+b.createTransaction(new transaction(inp[5], inp[0], "4547", new Date().getTime));
+b.createTransaction(new transaction(inp[1], inp[4], "4549", new Date().getTime));
 console.log("Transactions starting")
 b.completePendingTransactions();
 b.showTransactions();
-//console.log(JSON.stringify(b, null, 6))
+console.log(b.chain[b.chain.length - 1].merkleRootHash())
+
