@@ -110,6 +110,32 @@ class blockChain
         }
     }
 }
+
+export default function merkleRootHash(transactions)
+{
+    n = this.transactions.length; 
+    let v = [];
+    for(let i=0;i<n;i++)
+    {
+        v[i]=transactions[i];
+    }
+    while(n!=1)
+    {
+        if(n%2 != 0)
+        {
+            v[n]=v[n-1];
+
+            n++;
+        }
+        let c=0;
+        for(let i=0;i<n;i+=2)
+        {
+            v[c++]=""+v[i]+v[i+1];
+        }
+        n=c;
+    }
+    return SHA256(v[0]);
+}
 class User
 {
     constructor(name, property)
