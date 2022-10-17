@@ -48,7 +48,7 @@ class Block
         this.timestamp = timestamp;
         this.transactions = transactions;
         this.previous_hash = previous_hash;
-        this.hash = this.calculateHash();
+        this.hash = SHA256(this.previous_hash + this.timestamp).toString();
         this.validatedBy = validtorNode;
     }
     calculateHash()
@@ -113,7 +113,7 @@ class blockChain
             stakes[i] = inp[i].returnStake();
         }
         let validatorNode= this.chooseNode(names, stakes);
-        if(this.chain[this.chain.length -1].transactions.length >= 3)
+        if(this.pendingTransactions.length >= 3)
         {
             let block = new Block(Date.now(), this.pendingTransactions, validatorNode);
             console.log("validated by : ");
@@ -157,7 +157,7 @@ class blockChain
     }
     showTransactions()
     {
-        for(let i = 1; i < this.chain.length; i++)
+        for(let i = 1; i < this.chain.length-1; i++)
         {
             const currBlock = this.chain[i];
             for(let j = 0; j < currBlock.transactions.length; j++)
@@ -239,5 +239,5 @@ b.completePendingTransactions();
 console.log(b.chain[b.chain.length - 1].merkleRootHash())
 
 b.showTransactions();
-
+//console.log(b)
 
