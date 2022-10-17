@@ -24,18 +24,17 @@ function weightedRandom(items, weights) {
   }
 class property
 {
-    property(size, ID)
+    property(ID)
     {
-        this.size = size;
         this.ID = ID;
     }
 }
 class transaction
 {
-    transaction(toName, fromName, propertyID)
+    transaction(to, from, propertyID)
     {
-        this.toName = toName;
-        this.fromName = fromName;
+        this.to = to;
+        this.from = from;
         this.propertyID = propertyID;
     }
 }
@@ -49,14 +48,35 @@ class Block
         this.hash = ' ';
         this.validatedBy = validtorNode;
     }
-    validateBlock()
-    {
-        setTimeout(function() {
-    }, 30000);
-    }
     calculateHash()
     {
         return SHA256(this.previous_hash + this.timestamp + JSON.stringify(this.transactions)).toString();
+    }
+    merkleRootHash()
+    {
+        transactions = this.transactions;
+        n = transactions.length; 
+        let v = [];
+        for(let i=0;i<n;i++)
+        {
+            v[i]=transactions[i];
+        }
+        while(n!==1)
+        {
+            if(n%2 !== 0)
+            {
+                v[n]=v[n-1];
+    
+                n++;
+            }
+            let c=0;
+            for(let i=0;i<n;i+=2)
+            {
+                v[c++]=""+v[i]+v[i+1];
+            }
+            n=c;
+        }
+        return SHA256(v[0]);
     }
 }
 class blockChain
@@ -75,26 +95,32 @@ class blockChain
         return this.chain[this.chain.length - 1];
 
     }
-    chooseNode(users)
+    chooseNode(names, stakes)
     {
-        return weightedRandom(users.address, users.returnStake()).item;
+        return weightedRandom(names, stakes).item;
     }
     completePendingTransactions()
     {
         //console.log("chosen node is : ")
         //console.log(this.chooseNode(inp));
-        validatorBlock = this.chooseNode(inp);
+        let names = [];
+        let stakes = [];
+        for(let i = 0;i < inp.length;i++)
+        {
+            names[i] = inp[i].name;
+            stakes[i] = inp[i].returnStake();
+        }
+        let validatorBlock = this.chooseNode(names, stakes);
         let block = new Block(Date.now(), this.pendingTransactions, validatorBlock);
-        block.validateBlock();
+        setTimeout(function() {
+            console.log("validated by : ");
+            console.log(block.validatedBy);
+        }, 7000);
         this.chain.push(block);
     }
-    addBlock(newBlock)
+    createTransaction(transaction)
     {
-        newBlock.previous_hash = this.getLatestBlock.hash;
-        newBlock.mineBlock();
-        newBlock.validatedBy = this.chooseNode(inp)
-        console.log("validated by : ");
-        console.log(newBlock.validatedBy());
+        this.pendingTransactions.push(transaction)
     }
     isChainValid()
     {
@@ -110,52 +136,51 @@ class blockChain
         }
     }
 }
-
-export default function merkleRootHash(transactions)
-{
-    n = this.transactions.length; 
-    let v = [];
-    for(let i=0;i<n;i++)
-    {
-        v[i]=transactions[i];
-    }
-    while(n!=1)
-    {
-        if(n%2 != 0)
-        {
-            v[n]=v[n-1];
-
-            n++;
-        }
-        let c=0;
-        for(let i=0;i<n;i+=2)
-        {
-            v[c++]=""+v[i]+v[i+1];
-        }
-        n=c;
-    }
-    return SHA256(v[0]);
-}
 class User
 {
-    constructor(name, property)
+    constructor(name, properties, blockchain = '')
     {
         this.name = name;
-        this.property = property;
+        this.properties = properties;
+        this.blockchain = blockchain;
     }
     returnStake()
     {
-        return property.size();
-    }
-    broadcastBlock(block)
-    {
-        console.log
+        return properties.length;
     }
 }
 let inp = [];
-inp[0] = new User("Bumar", new property(2, ["6969", "A7PS"]));
-inp[1] = new User("Seth", new property(2, ["4542", "4541"]));
+let properties = []
+properties.push(new property("4540"));
+properties.push(new property("4541"));
+inp[0] = new User("Bumar", properties);
+properties = [];
+properties.push(new property("4542"));
+properties.push(new property("4543"));
+inp[1] = new User("Seth", properties);
+properties = [];
+properties.push(new property("4544"));
+properties.push(new property("4545"));
+inp[2] = new User("Bnmol", properties);
+properties = [];
+properties.push(new property("4546"));
+properties.push(new property("4547"));
+inp[3] = new User("Zyan", properties);
+properties = [];
+properties.push(new property("4548"));
+properties.push(new property("4549"));
+properties.push(new property("4550"));
+inp[4] = new User("Bishra", properties);
+properties = [];
+properties.push(new property("4551"));
+inp[5] = new User("Dhey", properties);
 let b = new blockChain();
 //b.addBlock(new Block(1, "12/10/2022", {amount : 4}));
 //b.addBlock(new Block(2, "13/10/2022", {amount : 5}));
-console.log(JSON.stringify(b, null, 4))
+inp[0].blockchain = b;
+inp[1].blockchain = b;
+b.createTransaction(new transaction(inp[0], inp[1], "4540"));
+b.createTransaction(new transaction(inp[3], inp[4], "4548"));
+console.log("Transactions starting")
+b.completePendingTransactions();
+//console.log(JSON.stringify(b, null, 6))
