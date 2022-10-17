@@ -91,7 +91,7 @@ class blockChain
     }
     createGenesisBlock()
     {
-        return new Block('10/10/2022', [], 0, 0);
+        return new Block('17/10/2022', [], 0, 0);
     }
     getLatestBlock()
     {
@@ -181,40 +181,52 @@ class User
         return properties.length;
     }
 }
-
+// RUNNING PROGRAM STARTS HERE
+// inp is new user data that we get from input
 let inp = [];
+// properties is array of all prop. that each user has
 let properties = [];
+
 let b = new blockChain();
+
 properties.push(new property("4540"));
 properties.push(new property("4541"));
 inp[0] = new User("Bumar", properties,b);
+
+// properties needs to be cleared for each user
 properties = [];
 properties.push(new property("4542"));
 properties.push(new property("4543"));
 inp[1] = new User("Seth", properties,b);
+
 properties = [];
 properties.push(new property("4544"));
 properties.push(new property("4545"));
 inp[2] = new User("Bnmol", properties,b);
+
 properties = [];
 properties.push(new property("4546"));
 properties.push(new property("4547"));
 inp[3] = new User("Zyan", properties);
+
 properties = [];
 properties.push(new property("4548"));
 properties.push(new property("4549"));
 properties.push(new property("4550"));
 inp[4] = new User("Bishra", properties,b);
+
 properties = [];
 properties.push(new property("4551"));
 inp[5] = new User("Dhey", properties,b);
 
+//  transactions
 b.createTransaction(new transaction(inp[1], inp[0], "4540", new Date().getTime));
 b.createTransaction(new transaction(inp[4], inp[3], "4547", new Date().getTime));
 b.createTransaction(new transaction(inp[1], inp[4], "4547", new Date().getTime));
 b.createTransaction(new transaction(inp[3], inp[0], "4541", new Date().getTime));
 console.log("Transactions starting")
 b.completePendingTransactions();
+//print merkle root hash
 console.log(b.chain[b.chain.length - 1].merkleRootHash())
 
 b.createTransaction(new transaction(inp[2], inp[0], "4540", new Date().getTime));
@@ -223,6 +235,9 @@ b.createTransaction(new transaction(inp[5], inp[0], "4547", new Date().getTime))
 b.createTransaction(new transaction(inp[1], inp[4], "4549", new Date().getTime));
 console.log("Transactions starting")
 b.completePendingTransactions();
-b.showTransactions();
+//print merkle root hash
 console.log(b.chain[b.chain.length - 1].merkleRootHash())
+
+b.showTransactions();
+
 
