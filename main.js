@@ -127,21 +127,25 @@ class blockChain
     }
     createTransaction(transaction)
     {
-        var flag = 1;
-        for(let i = 0; i < transaction.from.properties.length; i++)
-           if(transaction.from.properties[i] === transaction.propertyID)
+        // console.log(transaction.from.properties)
+        // console.log(transaction.propertyID)
+        let flag = 0;
+        let i = 0;
+        for(i = 0; i < transaction.from.properties.length; i++)
+           if(transaction.from.properties[i].ID === transaction.propertyID)
                flag = 1;
         if(flag)
         {
             this.pendingTransactions.push(transaction);
             let propertiesto = [];
             transaction.to.properties.push(transaction.propertyID);
-            for(let i = 0; i < transaction.from.properties.length; i++)
-            {
-                if(transaction.from.properties.ID !== transaction.propertyID)
-                    propertiesto.push(transaction.propertyID);
-            }
-            transaction.from.properties = propertiesto;
+            // for(let i = 0; i < transaction.from.properties.length; i++)
+            // {
+            //     if(transaction.from.properties.ID !== transaction.propertyID)
+            //     propertiesto.push(transaction.propertyID);
+            // }
+            // transaction.from.properties = propertiesto;
+            transaction.from.properties = transaction.from.properties.splice(i,1)
         }
         else 
             console.log("error");
@@ -167,11 +171,11 @@ class blockChain
             for(let j = 0; j < currBlock.transactions.length; j++)
             {
                 // remove debugging stuff later
-                console.log(currBlock.transactions[j].from)
+               // console.log(currBlock.transactions[j].from)
                 if (currBlock.transactions[j].from)
-                console.log("id:"+i+":"+j+":"+"transfered : " + currBlock.transactions[j].propertyID + " from : " + currBlock.transactions[j].from.name + " to : " + currBlock.transactions[j].to.name)
-                else
-                console.log("id "+i+j+":"+" is undefined")
+                console.log("transfered : " + currBlock.transactions[j].propertyID + " from : " + currBlock.transactions[j].from.name + " to : " + currBlock.transactions[j].to.name)
+                // else
+                // console.log("id "+i+j+":"+" is undefined")
             }
         }
     }
@@ -218,8 +222,8 @@ properties.push(new property("4551"));
 inp[5] = new User("Dhey", properties,b);
 //b.addBlock(new Block(1, "12/10/2022", {amount : 4}));
 //b.addBlock(new Block(2, "13/10/2022", {amount : 5}));
-b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
-b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
+b.createTransaction(new transaction(inp[0], inp[1], "4542", new Date().getTime));
+b.createTransaction(new transaction(inp[0], inp[1], "4542", new Date().getTime));
 b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
 b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
 b.createTransaction(new transaction(inp[0], inp[1], "4540", new Date().getTime));
