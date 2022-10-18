@@ -96,7 +96,6 @@ class blockChain
     getLatestBlock()
     {
         return this.chain[this.chain.length - 1];
-
     }
     chooseNode(names, stakes)
     {
@@ -115,7 +114,7 @@ class blockChain
         let validatorNode= this.chooseNode(names, stakes);
         if(this.pendingTransactions.length >= 3)
         {
-            let block = new Block(Date.now(), this.pendingTransactions, validatorNode);
+            let block = new Block(Date.now(), this.pendingTransactions, validatorNode,);
             console.log("validated by : ");
             console.log(block.validatedBy);
             block.previous_hash = this.chain[this.chain.length -1].hash;
@@ -129,15 +128,35 @@ class blockChain
     {
         
         let flag = 0;
+        let ind = 0;
         let i = 0;
+        let currProp = transaction.propertyID;
         for(i = 0; i < transaction.from.properties.length; i++)
-           if(transaction.from.properties[i].ID === transaction.propertyID)
-               flag = 1;
+        {
+            let sellProp = transaction.from.properties[i].ID;
+            //console.log("searching for "+transaction.from.name+" on prop  = "+sellProp);
+            if(sellProp == currProp)
+            {
+                flag = 1;
+                ind = i;
+                //console.log("found this property with : " + transaction.from.name + transaction.from.properties[i].ID)
+                break;
+            }
+        }
         if(flag)
         {
             this.pendingTransactions.push(transaction);
-            transaction.to.properties.push({ID:transaction.propertyID});
-            transaction.from.properties = transaction.from.properties.splice(i,1)
+            transaction.to.properties.push(new property(transaction.propertyID));
+            //transaction.from.properties = transaction.from.properties.splice(ind,1);
+            let newFromTrans = [];
+            for(let j = 0; j < transaction.from.properties.length; j++)
+            {
+                if(j !==  ind)
+                    newFromTrans.push(transaction.from.properties[j]);
+                // else
+                //     console.log("Removing " + transaction.from.properties[j].ID + " from " + transaction.from.name)
+            }
+            transaction.from.properties = newFromTrans;
         }
         else 
             console.log("Transaction " + transaction.propertyID + " not possible");
@@ -148,8 +167,6 @@ class blockChain
         {
             const currBlock = this.chain[i];
             const prevBlock = this.chain[i-1];
-            if(currBlock.hash !== currBlock.calculateHash)
-                return false;
             if(currBlock.previous_hash !== prevBlock.hash)
                 return false;
             return true;
@@ -163,7 +180,7 @@ class blockChain
             for(let j = 0; j < currBlock.transactions.length; j++)
             {
                 if (currBlock.transactions[j].from)
-                console.log("transfered : " + currBlock.transactions[j].propertyID + " from : " + currBlock.transactions[j].from.name + " to : " + currBlock.transactions[j].to.name)
+                    console.log("transfered : " + currBlock.transactions[j].propertyID + " from : " + currBlock.transactions[j].from.name + " to : " + currBlock.transactions[j].to.name)
             }
         }
     }
@@ -178,47 +195,52 @@ class User
     }
     returnStake()
     {
-        return properties.length;
+        return this.properties.length;
     }
 }
 // RUNNING PROGRAM STARTS HERE
 // inp is new user data that we get from input
 let inp = [];
 // properties is array of all prop. that each user has
-let properties = [];
+let properties0 = [], properties1 = [], properties2 = [],  properties3 = [],  properties4 = [],  properties5 = []
 
 let b = new blockChain();
-
-properties.push(new property("4540"));
-properties.push(new property("4541"));
-inp[0] = new User("Bumar", properties,b);
+properties0.push(new property("4000"));
+properties0.push(new property("4540"));
+properties0.push(new property("4541"));
+inp[0] = new User("Bumar", properties0,b);
 
 // properties needs to be cleared for each user
-properties = [];
-properties.push(new property("4542"));
-properties.push(new property("4543"));
-inp[1] = new User("Seth", properties,b);
+// properties = [];
+properties1.push(new property("4001"));
+properties1.push(new property("4542"));
+properties1.push(new property("4543"));
+inp[1] = new User("Seth", properties1,b);
 
-properties = [];
-properties.push(new property("4544"));
-properties.push(new property("4545"));
-inp[2] = new User("Bnmol", properties,b);
+// properties = [];
+properties2.push(new property("4002"));
+properties2.push(new property("4544"));
+properties2.push(new property("4545"));
+inp[2] = new User("Bnmol", properties2,b);
 
-properties = [];
-properties.push(new property("4546"));
-properties.push(new property("4547"));
-inp[3] = new User("Zyan", properties);
+//properties = [];
+properties3.push(new property("4003"));
+properties3.push(new property("4546"));
+properties3.push(new property("4547"));
+inp[3] = new User("Zyan", properties3,b);
 
-properties = [];
-properties.push(new property("4548"));
-properties.push(new property("4549"));
-properties.push(new property("4550"));
-inp[4] = new User("Bishra", properties,b);
+// properties = [];
+properties4.push(new property("4004"));
+properties4.push(new property("4548"));
+properties4.push(new property("4549"));
+properties4.push(new property("4550"));
+inp[4] = new User("Bishra", properties4,b);
 
-properties = [];
-properties.push(new property("4551"));
-inp[5] = new User("Dhey", properties,b);
-
+//properties = [];
+properties5.push(new property("4005"));
+properties5.push(new property("4551"));
+inp[5] = new User("Dhey", properties5,b);
+//console.log(inp)
 //  transactions
 b.createTransaction(new transaction(inp[1], inp[0], "4540", new Date().getTime));
 b.createTransaction(new transaction(inp[4], inp[3], "4547", new Date().getTime));
@@ -239,5 +261,5 @@ b.completePendingTransactions();
 console.log(b.chain[b.chain.length - 1].merkleRootHash())
 
 b.showTransactions();
-//console.log(b)
+//console.log(inp)
 
